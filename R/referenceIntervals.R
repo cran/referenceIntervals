@@ -1,20 +1,25 @@
 require(boot);
 require(extremevalues);
+require(car);
+require(outliers);
 
 horn.outliers = function (data)
 {
 #   This function implements Horn's algorithm for outlier detection using
 #   Tukey's interquartile fences.
 
-    descriptives = summary(data);
+	boxcox = car::powerTransform(data);
+	lambda = boxcox$lambda;
+	transData = data^lambda;
+    descriptives = summary(transData);
     Q1 = descriptives[[2]];
     Q3 = descriptives[[5]];
     IQR = Q3 - Q1;
 
-    out = subset(data, data <= (Q1 - 1.5*IQR) | data >= (Q3 + 1.5*IQR));
-    sub = subset(data, data > (Q1 - 1.5*IQR) & data < (Q3 + 1.5*IQR));
+    out = subset(transData, transData <= (Q1 - 1.5*IQR) | transData >= (Q3 + 1.5*IQR));
+    sub = subset(transData, transData > (Q1 - 1.5*IQR) & transData < (Q3 + 1.5*IQR));
 
-    return(list(outliers = out, subset = sub));
+    return(list(outliers = out^(1/lambda), subset = sub));
 }
 
 dixon.outliers = function (data)
@@ -22,36 +27,24 @@ dixon.outliers = function (data)
 	# This outlier detection method implements Dixon and Dean's algorithm to find
 	# only a single outlier, if it exists.
 
-	if(length(data) >= 3 & length(data) <= 30){
-		d = sort(data);
-		gap_high = abs(d[length(data)] - d[length(data) - 1]);
-		gap_low = abs(d[2] - d[1]);
-		range = d[length(d)] - d[1];
-		end = NULL;
-		if(gap_high > gap_low){
-			end = "high";
-			Q = gap_high / range;
-		}
-		if(gap_low > gap_high){
-			end = "low";
-			Q = gap_low / range;
-		}
-		dixonNum = subset(dixonTableValues, dixonTableValues$Size == length(data))$Q95;
-		sub = data;
-		out = as.numeric(c());
-		if(Q > dixonNum & end == "high"){
+	d = sort(data);
+	dixResult = outliers::dixon.test(data);
+	pResult = dixResult[[3]];
+	result = strsplit(dixResult[[2]], " ");
+	if(pResult <= 0.05) {
+		out = result[[1]][3];
+		if(result[[1]][1] == "highest") {
 			sub = subset(data, data < d[length(d)]);
-			out = d[length(d)];
 		}
-		if(Q > dixonNum & end == "low"){
+		else {
 			sub = subset(data, data > d[1]);
-			out = d[1];
 		}
-		return(list(outliers = out, subset = sub));
 	}
-	else{
-		return(list(outliers = as.numeric(c()), subset = data));
+	else {
+		out = c();
+		sub = data;
 	}
+	return(list(outliers = out, subset = sub));
 }
 
 cook.outliers = function (data)
@@ -75,7 +68,7 @@ vanderLoo.outliers = function (data)
 #	This function identifies outliers using Mark van der Loo's Method I algorithm for
 #	outlier detection in the extremevalues package.
 
-	result = getOutliers(data, method = "I");
+	result = extremevalues::getOutliers(data, method = "I");
 	indices = c(result$iLeft, result$iRight);
 
 	out = data[indices];
@@ -287,13 +280,13 @@ singleRefLimit = function(data, dname = "default", out.method = "horn", out.rm =
 		methodCI = "Confidence Intervals calculated by bootstrapping, R = 5000";
 		
 		if(RI == "n"){
-			bootresult = boot(data = data, statistic = nonparRI, refConf = refConf, R = 5000);
+			bootresult = boot::boot(data = data, statistic = nonparRI, refConf = refConf, R = 5000);
 		}
 		if(RI == "r"){
-			bootresult = boot(data = data, statistic = robust, refConf = refConf, R = 5000);
+			bootresult = boot::boot(data = data, statistic = robust, refConf = refConf, R = 5000);
 		}
-    	bootresultlower = boot.ci(bootresult, conf = limitConf, type="basic", index = 1);
-    	bootresultupper = boot.ci(bootresult, conf = limitConf, type="basic", index = 2);
+    	bootresultlower = boot::boot.ci(bootresult, conf = limitConf, type="basic", index = 1);
+    	bootresultupper = boot::boot.ci(bootresult, conf = limitConf, type="basic", index = 2);
     	lowerRefLowLimit = bootresultlower$basic[4];
     	lowerRefUpperLimit = bootresultlower$basic[5];
     	upperRefLowLimit = bootresultupper$basic[4];

@@ -7,8 +7,7 @@ Two reference tables necessary for reference interval calculations
 }
 
 \description{
-Tables for Dixon's Q statistics for outlier detection and for non-parametric ranks of
-confidence intervals.
+Table for non-parametric ranks of confidence intervals.
 }
 
 \usage{tables.RData}

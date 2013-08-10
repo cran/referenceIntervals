@@ -18,8 +18,8 @@ also contains four outlier detection functions.
 \tabular{ll}{
 Package: \tab referenceIntervals\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2013-08-10\cr
+Version: \tab 1.1\cr
+Date: \tab 2014-08-09\cr
 License: \tab GPL-3\cr
 }
 
