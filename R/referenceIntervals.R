@@ -1,7 +1,4 @@
-require(boot);
-require(extremevalues);
-require(car);
-require(outliers);
+data(sysdata, envir=environment())
 
 horn.outliers = function (data)
 {
@@ -16,10 +13,10 @@ horn.outliers = function (data)
     Q3 = descriptives[[5]];
     IQR = Q3 - Q1;
 
-    out = subset(transData, transData <= (Q1 - 1.5*IQR) | transData >= (Q3 + 1.5*IQR));
-    sub = subset(transData, transData > (Q1 - 1.5*IQR) & transData < (Q3 + 1.5*IQR));
+	out = transData[transData <= (Q1 - 1.5*IQR) | transData >= (Q3 + 1.5*IQR)];
+	sub = transData[transData > (Q1 - 1.5*IQR) & transData < (Q3 + 1.5*IQR)];
 
-    return(list(outliers = out^(1/lambda), subset = sub));
+    return(list(outliers = out^(1/lambda), subset = sub^(1/lambda)));
 }
 
 dixon.outliers = function (data)
@@ -34,14 +31,14 @@ dixon.outliers = function (data)
 	if(pResult <= 0.05) {
 		out = result[[1]][3];
 		if(result[[1]][1] == "highest") {
-			sub = subset(data, data < d[length(d)]);
+			sub = data[data < d[length(d)]];
 		}
 		else {
-			sub = subset(data, data > d[1]);
+			sub = data[data > d[1]];
 		}
 	}
 	else {
-		out = c();
+		out = as.numeric(c());
 		sub = data;
 	}
 	return(list(outliers = out, subset = sub));
@@ -266,7 +263,7 @@ singleRefLimit = function(data, dname = "default", out.method = "horn", out.rm =
     	
     		methodCI = "Confidence Intervals calculated nonparametrically";
     		
-    		ranks = subset(nonparRanks, subset=(nonparRanks$SampleSize == n));
+    		ranks = nonparRanks[which(nonparRanks$SampleSize == n),];
   		  	lowerRefLowLimit = data[ranks$Lower];
     		lowerRefUpperLimit = data[ranks$Upper];
     		upperRefLowLimit = data[(n+1) - ranks$Upper];

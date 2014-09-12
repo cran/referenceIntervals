@@ -1,1 +1,20 @@
-exportPattern("^[[:alpha:]]+")
+importFrom(car, powerTransform)
+importFrom(outliers, dixon.test)
+importFrom(extremevalues, getOutliers)
+importFrom(boot, boot)
+
+S3method(plot, interval)
+S3method(print, interval)
+
+export(horn.outliers,
+		dixon.outliers,
+		cook.outliers,
+		vanderLoo.outliers,
+		refLimit,
+		singleRefLimit,
+		nonparRI,
+		robust,
+		set20,
+		set50,
+		set120,
+		set200)

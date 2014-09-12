@@ -33,7 +33,7 @@ Daniel Finnegan
 
 \examples{
 result = refLimit(set200)
-plot.interval(result)
+plot(result)
 
 ## The function is currently defined as
 function (x, main = NULL, ...) 

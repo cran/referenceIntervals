@@ -19,7 +19,7 @@ also contains four outlier detection functions.
 Package: \tab referenceIntervals\cr
 Type: \tab Package\cr
 Version: \tab 1.1\cr
-Date: \tab 2014-08-09\cr
+Date: \tab 2014-09-12\cr
 License: \tab GPL-3\cr
 }
 
