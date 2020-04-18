@@ -1,7 +1,11 @@
-importFrom(car, powerTransform)
-importFrom(outliers, dixon.test)
-importFrom(extremevalues, getOutliers)
-importFrom(boot, boot)
+importFrom("car", "powerTransform")
+importFrom("outliers", "dixon.test")
+importFrom("extremevalues", "getOutliers")
+importFrom("boot", "boot", "boot.ci")
+importFrom("graphics", "axis", "box", "legend", "par", "plot.new",
+					 "plot.window", "segments", "text", "title")
+importFrom("stats", "cooks.distance", "ks.test", "lm", "qnorm", "qt",
+					 "quantile", "shapiro.test")
 
 S3method(plot, interval)
 S3method(print, interval)

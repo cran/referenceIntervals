@@ -19,7 +19,7 @@ the refLimit function.
 	}
 	\item{digits}{ minimal number of _significant_ digits.  See 'print.default'.
 	}
-	\item{quote}{ logical, indicating whether or not strings should be printed 
+	\item{quote}{ logical, indicating whether or not strings should be printed
 	with surrounding quotes.
 	}
 	\item{prefix}{ Option to specify a formatting prefix.
@@ -37,19 +37,10 @@ Daniel Finnegan
 }
 
 \examples{
+	
 result = refLimit(set120)
 result
 
-## The function is currently defined as
-function (x, digits = 4L, quote = TRUE, prefix = "", ...) 
-{
-    if (class(x[[1]]) == "interval") {
-        lapply(x, print.interval.sub)
-    }
-    else {
-        print.interval.sub(x)
-    }
-  }
 }
 
 \keyword{ ~print }

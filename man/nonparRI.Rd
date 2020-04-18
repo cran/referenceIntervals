@@ -18,10 +18,10 @@ nonparRI(data, indices = 1:length(data), refConf = 0.95)
 \arguments{
 	\item{data}{ data is a vector of sample values.
 	}
-	\item{indices}{ The indices of data to be used in the calculations.  The default is 
+	\item{indices}{ The indices of data to be used in the calculations.  The default is
 	to use the whole set.
 	}
-	\item{refConf}{ refConf is a measure of the range covered by the calculation.  Most 
+	\item{refConf}{ refConf is a measure of the range covered by the calculation.  Most
 	often, as is the default, 95% reference intervals are used in medical settings.
 	}
 }
@@ -31,7 +31,7 @@ nonparRI(data, indices = 1:length(data), refConf = 0.95)
 }
 
 \references{
-Defining, Establishing, and Verifying Reference Intervals in the Clinical Laboratory; 
+Defining, Establishing, and Verifying Reference Intervals in the Clinical Laboratory;
 Approved Guideline - 3rd Edition (C28-A3)
 }
 
@@ -40,17 +40,10 @@ Daniel Finnegan
 }
 
 \examples{
+
 nonparRI(set50)
 nonparRI(set50, refConf = 0.9)
 
-## The function is currently defined as
-function (data, indices = 1:length(data), refConf = 0.95) 
-{
-    d = data[indices]
-    results = c(quantile(d, (1 - refConf)/2, type = 6), quantile(d, 
-        1 - ((1 - refConf)/2), type = 6))
-    return(results)
-  }
 }
 
 \keyword{ ~interval }

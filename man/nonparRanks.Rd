@@ -23,12 +23,14 @@ calculated reference interval.  This method is available when 120 <= n <= 1000.
 }
 
 \references{
-Defining, Establishing, and Verifying Reference Intervals in the Clinical Laboratory; 
+Defining, Establishing, and Verifying Reference Intervals in the Clinical Laboratory;
 Approved Guideline - 3rd Edition (C28-A3)
 }
 
 \examples{
+  
 data(nonparRanks)
+
 }
 
 \keyword{datasets}

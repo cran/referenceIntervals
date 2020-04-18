@@ -22,7 +22,7 @@ dixon.outliers(data)
 
 \value{
 	Returns a list containing a vector of outliers and a vector of the cleaned data (subset).
-	
+
 	\item{outliers}{ A vector of outliers from the data set
 	}
 	\item{subset}{ A vector containing the remaining data, cleaned of outliers
@@ -30,12 +30,12 @@ dixon.outliers(data)
 }
 
 \references{
-Statistical treatment for rejection of deviant values: critical values of Dixon's "Q" 
-parameter and related subrange ratios at the 95% confidence level. Anal. Chem., 1991, 63 
+Statistical treatment for rejection of deviant values: critical values of Dixon's "Q"
+parameter and related subrange ratios at the 95% confidence level. Anal. Chem., 1991, 63
 (2), pp 139-146
 DOI: 10.1021/ac00002a010. Publication Date: January 1991
 
-One-sided and Two-sided Critical Values for Dixon's Outlier Test for Sample Sizes up to 
+One-sided and Two-sided Critical Values for Dixon's Outlier Test for Sample Sizes up to
 n = 30. Economic Quality Control, Vol 23(2008), No. 1, 5-13.
 
 }
@@ -45,43 +45,10 @@ Daniel Finnegan
 }
 
 \examples{
+  
 dixon.outliers(set20)
 summary(dixon.outliers(set20)$subset)
 
-## The function is currently defined as
-function (data) 
-{
-    if (length(data) >= 3 & length(data) <= 30) {
-        d = sort(data)
-        gap_high = abs(d[length(data)] - d[length(data) - 1])
-        gap_low = abs(d[2] - d[1])
-        range = d[length(d)] - d[1]
-        end = NULL
-        if (gap_high > gap_low) {
-            end = "high"
-            Q = gap_high/range
-        }
-        if (gap_low > gap_high) {
-            end = "low"
-            Q = gap_low/range
-        }
-        dixonNum = subset(dixonTableValues, Size == length(data))$Q95
-        sub = data
-        out = as.numeric(c())
-        if (Q > dixonNum & end == "high") {
-            sub = subset(data, data < d[length(d)])
-            out = d[length(d)]
-        }
-        if (Q > dixonNum & end == "low") {
-            sub = subset(data, data > d[1])
-            out = d[1]
-        }
-        return(list(outliers = out, subset = sub))
-    }
-    else {
-        return(list(outliers = as.numeric(c()), subset = data))
-    }
-  }
 }
 
 \keyword{ ~Dixon }

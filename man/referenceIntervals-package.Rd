@@ -18,8 +18,8 @@ also contains four outlier detection functions.
 \tabular{ll}{
 Package: \tab referenceIntervals\cr
 Type: \tab Package\cr
-Version: \tab 1.1\cr
-Date: \tab 2014-09-12\cr
+Version: \tab 1.2.0\cr
+Date: \tab 2020-04-17\cr
 License: \tab GPL-3\cr
 }
 
@@ -42,7 +42,9 @@ refLimit(set200, out.method = "horn", RI = "n", refConf = 0.90, limitConf = 0.80
 horn.outliers(set120)
 dixon.outliers(set20)
 
-frame = data.frame(one = rnorm(30, m = 5, sd = 2), two = rnorm(30, m = 7, sd = 1), 
+refLimit(set50, out.method = "vanderLoo", out.rm = TRUE, RI = "r", bootStat = "perc")
+
+frame = data.frame(one = rnorm(30, m = 5, sd = 2), two = rnorm(30, m = 7, sd = 1),
 	three = rnorm(30, m = 2, sd = 0.5))
 result = refLimit(frame)
 plot(result)

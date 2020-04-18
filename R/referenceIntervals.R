@@ -93,35 +93,35 @@ robust = function (data, indices = c(1:length(data)), refConf = 0.95)
         ui[ui > 1] = 1;
         wi = (1 - ui^2)^2;
         TbiNew = (sum(data * wi) / sum(wi));
-        if((abs(TbiNew - Tbi)) < 0.000001){
+        if(!is.finite(TbiNew) | (abs(TbiNew - Tbi)) < 0.000001){
             break;
         }
         Tbi = TbiNew;
     };
     ui = NULL;
     ui = (data - median) / (205.6 * MAD);
-    sbi205.6 = 205.6 * MAD * sqrt((n * sum(((1-ui[ui>-1 & ui<1]^2)^4)*ui[ui>-1 & ui<1]^2)) / 
-                (sum((1-ui[ui>-1 & ui<1]^2)*(1-5*ui[ui>-1 & ui<1]^2)) * 
+    sbi205.6 = 205.6 * MAD * sqrt((n * sum(((1-ui[ui>-1 & ui<1]^2)^4)*ui[ui>-1 & ui<1]^2)) /
+                (sum((1-ui[ui>-1 & ui<1]^2)*(1-5*ui[ui>-1 & ui<1]^2)) *
                 max(c(1, -1 + sum((1-ui[ui>-1 & ui<1]^2)*(1-5*ui[ui>-1 & ui<1]^2))))));
-    
+
     ui = NULL;
     ui = (data - median) / (3.7 * MAD);
-    sbi3.7 = 3.7 * MAD * sqrt((n * sum(((1-ui[ui>-1 & ui<1]^2)^4)*ui[ui>-1 & ui<1]^2)) / 
-                (sum((1-ui[ui>-1 & ui<1]^2)*(1-5*ui[ui>-1 & ui<1]^2)) * 
+    sbi3.7 = 3.7 * MAD * sqrt((n * sum(((1-ui[ui>-1 & ui<1]^2)^4)*ui[ui>-1 & ui<1]^2)) /
+                (sum((1-ui[ui>-1 & ui<1]^2)*(1-5*ui[ui>-1 & ui<1]^2)) *
                 max(c(1, -1 + sum((1-ui[ui>-1 & ui<1]^2)*(1-5*ui[ui>-1 & ui<1]^2))))));
-    
+
     ui = NULL;
     ui = (data - Tbi) / (3.7 * sbi3.7);
-    St3.7 = 3.7 * sbi3.7 * sqrt((sum(((1-ui[ui>-1 & ui<1]^2)^4)*ui[ui>-1 & ui<1]^2)) / 
-                (sum((1-ui[ui>-1 & ui<1]^2)*(1-5*ui[ui>-1 & ui<1]^2)) * 
+    St3.7 = 3.7 * sbi3.7 * sqrt((sum(((1-ui[ui>-1 & ui<1]^2)^4)*ui[ui>-1 & ui<1]^2)) /
+                (sum((1-ui[ui>-1 & ui<1]^2)*(1-5*ui[ui>-1 & ui<1]^2)) *
                 max(c(1, -1 + sum((1-ui[ui>-1 & ui<1]^2)*(1-5*ui[ui>-1 & ui<1]^2))))));
-    
+
     tStatistic = qt(1 - ((1 - refConf)/2), (n-1));
     margin = tStatistic * sqrt(sbi205.6^2 + St3.7^2);
 	robustLower = Tbi - margin;
     robustUpper = Tbi + margin;
     RefInterval = c(robustLower, robustUpper);
-    
+
     return (RefInterval);
 }
 
@@ -132,18 +132,18 @@ nonparRI = function(data, indices = 1:length(data), refConf = 0.95)
 
 	d = data[indices];
     results = c(quantile(d, (1 - refConf)/2, type = 6), quantile(d, 1-((1 - refConf)/2), type = 6));
-    
+
     return (results);
 }
 
-refLimit = function(data, out.method = "horn", out.rm = FALSE, RI = "p", CI = "p", 
-					refConf = 0.95, limitConf = 0.90){
+refLimit = function(data, out.method = "horn", out.rm = FALSE, RI = "p", CI = "p",
+					refConf = 0.95, limitConf = 0.90, bootStat = "basic"){
 
 	cl = class(data);
 	if(cl == "data.frame"){
 		frameLabels = colnames(data);
 		dname = deparse(substitute(data));
-		result = lapply(data, singleRefLimit, dname, out.method, out.rm, RI, CI, refConf, limitConf);
+		result = lapply(data, singleRefLimit, dname, out.method, out.rm, RI, CI, refConf, limitConf, bootStat);
 		for(i in 1:length(data)){
 			result[[i]]$dname = frameLabels[i];
 		}
@@ -152,14 +152,14 @@ refLimit = function(data, out.method = "horn", out.rm = FALSE, RI = "p", CI = "p
 	else{
 		frameLabels = NULL;
 		dname = deparse(substitute(data));
-		result = singleRefLimit(data, dname, out.method, out.rm, RI, CI, refConf, limitConf);
+		result = singleRefLimit(data, dname, out.method, out.rm, RI, CI, refConf, limitConf, bootStat);
 	}
-	
+
 	return(result);
 }
 
-singleRefLimit = function(data, dname = "default", out.method = "horn", out.rm = FALSE, 
-						RI = "p", CI = "p", refConf = 0.95, limitConf = 0.90)
+singleRefLimit = function(data, dname = "default", out.method = "horn", out.rm = FALSE,
+						RI = "p", CI = "p", refConf = 0.95, limitConf = 0.90, bootStat = "basic")
 {
 #	This function determines a reference interval from a vector of data samples.
 #	The default is a parametric calculation, but other options include a non-parametric
@@ -182,15 +182,20 @@ singleRefLimit = function(data, dname = "default", out.method = "horn", out.rm =
 	if(out.rm == TRUE){
 		data = output$subset;
 	}
+
+  if(!bootStat %in% c("basic", "norm", "perc", "stud", "bca")) {
+		bootStat = "basic";
+	}
+
 	outliers = output$outliers;
-    n = length(data);
-    mean = mean(data, na.rm = TRUE);
-    sd = sd(data, na.rm = TRUE);
-    norm = NULL;
-    
-#	Calculate a nonparametric reference interval.    
+  n = length(data);
+  mean = mean(data, na.rm = TRUE);
+  sd = sd(data, na.rm = TRUE);
+  norm = NULL;
+
+#	Calculate a nonparametric reference interval.
     if(RI == "n"){
-    	
+
     	methodRI = "Reference Interval calculated nonparametrically";
 
         data = sort(data);
@@ -201,31 +206,31 @@ singleRefLimit = function(data, dname = "default", out.method = "horn", out.rm =
         	CI = "n";
         }
     }
-    
-#	Calculate a reference interval using the robust algorithm method.    
+
+#	Calculate a reference interval using the robust algorithm method.
     if(RI == "r"){
-    
+
     	methodRI = "Reference Interval calculated using Robust algorithm";
-    	
+
         holder = robust(data, 1:length(data), refConf);
         lowerRefLimit = holder[1];
         upperRefLimit = holder[2];
-        CI = "boot";  
+        CI = "boot";
     }
-    
+
 #	Calculate a reference interval parametrically, with parametric confidence interval
-#	around the limits.    
+#	around the limits.
     if(RI == "p"){
-	
+
 #		http://www.statsdirect.com/help/parametric_methods/reference_range.htm
 #		https://en.wikipedia.org/wiki/Reference_range#Confidence_interval_of_limit
 
 		methodRI = "Reference Interval calculated parametrically";
 		methodCI = "Confidence Intervals calculated parametrically";
-		
+
 		refZ = qnorm(1 - ((1 - refConf) / 2));
 		limitZ = qnorm(1 - ((1 - limitConf) / 2));
-		
+
 		lowerRefLimit = mean - refZ * sd;
 		upperRefLimit = mean + refZ * sd;
         se = sqrt(((sd^2)/n) + (((refZ^2)*(sd^2))/(2*n)));
@@ -233,9 +238,9 @@ singleRefLimit = function(data, dname = "default", out.method = "horn", out.rm =
         lowerRefUpperLimit = lowerRefLimit + limitZ * se;
         upperRefLowLimit = upperRefLimit - limitZ * se;
         upperRefUpperLimit = upperRefLimit + limitZ * se;
-        
+
         shap_normalcy = shapiro.test(data);
-        shap_output = paste(c("Shapiro-Wilk: W = ", format(shap_normalcy$statistic, 
+        shap_output = paste(c("Shapiro-Wilk: W = ", format(shap_normalcy$statistic,
         					digits = 6), ", p-value = ", format(shap_normalcy$p.value,
         					digits = 6)), collapse = "");
         ks_normalcy = suppressWarnings(ks.test(data, "pnorm", m = mean, sd = sd));
@@ -244,25 +249,25 @@ singleRefLimit = function(data, dname = "default", out.method = "horn", out.rm =
         					digits = 6)), collapse = "");
         if(shap_normalcy$p.value < 0.05 | ks_normalcy$p.value < 0.05){
         	norm = list(shap_output, ks_output);
-        				
+
         }
         else{
         	norm = list(shap_output, ks_output);
         }
     }
-    
-#	Calculate confidence interval around limits nonparametrically.    
+
+#	Calculate confidence interval around limits nonparametrically.
     if(CI == "n"){
-    	
+
     	if(n < 120){
-    		cat("\nSample size too small for non-parametric confidence intervals, 
+    		cat("\nSample size too small for non-parametric confidence intervals,
     		bootstrapping instead\n");
     		CI = "boot";
     	}
     	else{
-    	
+
     		methodCI = "Confidence Intervals calculated nonparametrically";
-    		
+
     		ranks = nonparRanks[which(nonparRanks$SampleSize == n),];
   		  	lowerRefLowLimit = data[ranks$Lower];
     		lowerRefUpperLimit = data[ranks$Upper];
@@ -270,33 +275,34 @@ singleRefLimit = function(data, dname = "default", out.method = "horn", out.rm =
     		upperRefUpperLimit = data[(n+1) - ranks$Lower];
 		}
     }
-    
-#	Calculate bootstrapped confidence intervals around limits.    
+
+#	Calculate bootstrapped confidence intervals around limits.
 	if(CI == "boot" & (RI == "n" | RI == "r")){
-	
+
 		methodCI = "Confidence Intervals calculated by bootstrapping, R = 5000";
-		
+
 		if(RI == "n"){
 			bootresult = boot::boot(data = data, statistic = nonparRI, refConf = refConf, R = 5000);
 		}
 		if(RI == "r"){
 			bootresult = boot::boot(data = data, statistic = robust, refConf = refConf, R = 5000);
 		}
-    	bootresultlower = boot::boot.ci(bootresult, conf = limitConf, type="basic", index = 1);
-    	bootresultupper = boot::boot.ci(bootresult, conf = limitConf, type="basic", index = 2);
-    	lowerRefLowLimit = bootresultlower$basic[4];
-    	lowerRefUpperLimit = bootresultlower$basic[5];
-    	upperRefLowLimit = bootresultupper$basic[4];
-    	upperRefUpperLimit = bootresultupper$basic[5];
+    	bootresultlower = boot::boot.ci(bootresult, conf = limitConf, type=bootStat, index = c(1,2));
+    	bootresultupper = boot::boot.ci(bootresult, conf = limitConf, type=bootStat, index = c(2,2));
+			bootresultlength = length(bootresultlower[[4]]);
+    	lowerRefLowLimit = bootresultlower[[4]][bootresultlength - 1];
+    	lowerRefUpperLimit = bootresultlower[[4]][bootresultlength];
+    	upperRefLowLimit = bootresultupper[[4]][bootresultlength - 1];
+    	upperRefUpperLimit = bootresultupper[[4]][bootresultlength];
     }
-    
-    RVAL = list(size = n, dname = dname, out.method = out.method, out.rm = out.rm, 
-    			outliers = outliers, methodRI = methodRI, methodCI = methodCI, 
+
+    RVAL = list(size = n, dname = dname, out.method = out.method, out.rm = out.rm,
+    			outliers = outliers, methodRI = methodRI, methodCI = methodCI,
     			norm = norm, refConf = refConf, limitConf = limitConf,
-    			Ref_Int = c(lowerRefLimit = lowerRefLimit, upperRefLimit = upperRefLimit), 
-    			Conf_Int = c(lowerRefLowLimit = lowerRefLowLimit, 
-    						lowerRefUpperLimit = lowerRefUpperLimit, 
-        					upperRefLowLimit = upperRefLowLimit, 
+    			Ref_Int = c(lowerRefLimit = lowerRefLimit, upperRefLimit = upperRefLimit),
+    			Conf_Int = c(lowerRefLowLimit = lowerRefLowLimit,
+    						lowerRefUpperLimit = lowerRefUpperLimit,
+        					upperRefLowLimit = upperRefLowLimit,
         					upperRefUpperLimit = upperRefUpperLimit));
     class(RVAL) = "interval";
     return(RVAL);
@@ -312,7 +318,7 @@ print.interval = function (x, digits = 4L, quote = TRUE, prefix = "", ...)
 	}
 }
 
-print.interval.sub = function (x, digits = 4L, quote = TRUE, prefix = "", ...) 
+print.interval.sub = function (x, digits = 4L, quote = TRUE, prefix = "", ...)
 {
     cat("\n");
     cat(strwrap(x$methodRI, prefix = "\t"), sep = "\n");
@@ -361,15 +367,15 @@ print.interval.sub = function (x, digits = 4L, quote = TRUE, prefix = "", ...)
 plot.interval = function (x, main = NULL, ...)
 {
 	original.parameters = par();
-	
+
 	if(class(x[[1]]) != "interval"){
 		range = max(x[["Conf_Int"]][[4]]) - min(x[["Conf_Int"]][[1]]);
 		y_low = min(x[["Conf_Int"]][[1]]) - 0.05 * range;
 		y_high = max(x[["Conf_Int"]][[4]]) + 0.05 * range;
-	
+
 		plot.new();
 		plot.window(xlim=c(0,2), ylim=c(y_low,y_high));
-	
+
 		segments(1, min(x[["Ref_Int"]]), 1, max(x[["Ref_Int"]]), col = "red");
 		segments(1-0.05, x[["Conf_Int"]][[1]], 1+0.05, x[["Conf_Int"]][[1]], col = "blue");
 		segments(1-0.05, x[["Conf_Int"]][[2]], 1+0.05, x[["Conf_Int"]][[2]], col = "blue");
@@ -385,8 +391,8 @@ plot.interval = function (x, main = NULL, ...)
 		}
 		title(xlab="Parameter");
 		title(ylab="Units");
-		legend(x="topright", col = c("red", "blue"), lty = 1, inset = c(0, -0.09),
-				legend = c("Reference Interval", "Confidence Intervals"), cex = 0.75,
+		legend("topright", col = c("red", "blue"), lty = 1, inset = c(0, -0.09),
+				legend = c("Reference Interval", "Confidence Interval"), cex = 0.6,
 				xpd = TRUE);
 		box();
 	}
@@ -408,9 +414,9 @@ plot.interval = function (x, main = NULL, ...)
 			segments(i-0.05, x[[i]]$Conf_Int[[3]], i+0.05, x[[i]]$Conf_Int[[3]], col = "blue");
 			segments(i-0.05, x[[i]]$Conf_Int[[4]], i+0.05, x[[i]]$Conf_Int[[4]], col = "blue");
 		}
-		
+
 		axis(1, at=1:numRanges, labels = FALSE);
-		text(x = seq(1, numRanges, by=1), par("usr")[3] - 0.2, labels = labels, 
+		text(x = seq(1, numRanges, by=1), par("usr")[3] - 0.2, labels = labels,
 			cex = 0.75, srt = 90, pos = 1, offset = 2, xpd = TRUE);
 		axis(2);
 		if(!is.null(main)){
@@ -421,10 +427,10 @@ plot.interval = function (x, main = NULL, ...)
 		}
 		title(xlab="Parameter");
 		title(ylab="Units");
-		legend(x="topright", col = c("red", "blue"), lty = 1, inset = c(0, -0.09),
-				legend = c("Reference Interval", "Confidence Intervals"), cex = 0.75,
+		legend("topright", col = c("red", "blue"), lty = 1, inset = c(0, -0.09),
+				legend = c("Reference Interval", "Confidence Interval"), cex = 0.6,
 				xpd = TRUE);
 		box();
 	}
-	par(original.parameters[-c(13, 19, 21:23)]);
+	par(original.parameters[-c(13, 19, 21:23, 54)]);
 }

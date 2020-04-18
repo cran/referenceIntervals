@@ -19,7 +19,7 @@ vanderLoo.outliers(data)
 
 \value{
 	Returns a list containing a vector of outliers and a vector of the cleaned data (subset).
-	
+
 	\item{outliers}{ A vector of outliers from the data set
 	}
 	\item{subset}{ A vector containing the remaining data, cleaned of outliers
@@ -39,18 +39,10 @@ Requires extremevalues package.
 }
 
 \examples{
+	
 vanderLoo.outliers(set50)
 vanderLoo.outliers(set200)
 
-## The function is currently defined as
-function (data) 
-{
-    result = getOutliers(data, method = "I")
-    indices = c(result$iLeft, result$iRight)
-    out = data[indices]
-    sub = data[!data \%in\% out]
-    return(list(outliers = out, subset = sub))
-  }
 }
 
 \keyword{ ~vanderLoo }
