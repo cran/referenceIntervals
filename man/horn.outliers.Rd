@@ -37,6 +37,8 @@ American Society for Veterinary Clinical Pathology
 
 Horn, P. S., Feng, L., Li, Y., & Pesce, A. J. (2001). Effect of outliers and nonhealthy
 individuals on reference interval estimation. Clinical Chemistry, 47(12), 2137-2145.
+
+Horn, P.S., Pesce, A.J. (2003). Reference Intervals: an update. Clin Chim Acta. 334(1-2):5-23. DOI:  doi: 10.1016/s0009-8981(03)00133-5.
 }
 
 \author{
@@ -44,7 +46,7 @@ Daniel Finnegan
 }
 
 \examples{
-  
+
 horn.outliers(set200)
 
 }

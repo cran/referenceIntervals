@@ -1,4 +1,4 @@
-importFrom("car", "powerTransform")
+importFrom("MASS", "boxcox")
 importFrom("outliers", "dixon.test")
 importFrom("extremevalues", "getOutliers")
 importFrom("boot", "boot", "boot.ci")

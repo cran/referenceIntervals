@@ -5,18 +5,26 @@ horn.outliers = function (data)
 #   This function implements Horn's algorithm for outlier detection using
 #   Tukey's interquartile fences.
 
-	boxcox = car::powerTransform(data);
-	lambda = boxcox$lambda;
-	transData = data^lambda;
-    descriptives = summary(transData);
-    Q1 = descriptives[[2]];
-    Q3 = descriptives[[5]];
-    IQR = Q3 - Q1;
-
-	out = transData[transData <= (Q1 - 1.5*IQR) | transData >= (Q3 + 1.5*IQR)];
-	sub = transData[transData > (Q1 - 1.5*IQR) & transData < (Q3 + 1.5*IQR)];
-
-    return(list(outliers = out^(1/lambda), subset = sub^(1/lambda)));
+	b = MASS::boxcox(lm(data ~ 1, y = TRUE), plotit=FALSE);
+	lambda = b$x[which.max(b$y)];
+	if (lambda == 0) {
+		transData = log(data);
+	}
+	else {
+		transData = ((data ^ lambda) - 1) / lambda;
+	}
+	descriptives = summary(transData);
+	Q1 = descriptives[[2]];
+	Q3 = descriptives[[5]];
+	IQR = Q3 - Q1;
+	out = transData[transData <= (Q1 - 1.5 * IQR) | transData >= (Q3 + 1.5 * IQR)];
+	sub = transData[transData > (Q1 - 1.5 * IQR) & transData < (Q3 + 1.5 * IQR)];
+	if (lambda == 0) {
+		return (list(outliers = (exp(1) ^ out), subset = (exp(1) ^ sub)));
+	}
+	else {
+		return (list(outliers = ((out*lambda) + 1)^(1/lambda), subset = ((sub*lambda) + 1)^(1/lambda)));
+	}
 }
 
 dixon.outliers = function (data)
@@ -310,7 +318,7 @@ singleRefLimit = function(data, dname = "default", out.method = "horn", out.rm =
 
 print.interval = function (x, digits = 4L, quote = TRUE, prefix = "", ...)
 {
-	if(class(x[[1]]) == "interval"){
+	if(inherits(x[[1]], "interval")){
 		lapply(x, print.interval.sub);
 	}
 	else{
@@ -368,7 +376,7 @@ plot.interval = function (x, main = NULL, ...)
 {
 	original.parameters = par();
 
-	if(class(x[[1]]) != "interval"){
+	if(!inherits(x[[1]], "interval")){
 		range = max(x[["Conf_Int"]][[4]]) - min(x[["Conf_Int"]][[1]]);
 		y_low = min(x[["Conf_Int"]][[1]]) - 0.05 * range;
 		y_high = max(x[["Conf_Int"]][[4]]) + 0.05 * range;
@@ -396,7 +404,7 @@ plot.interval = function (x, main = NULL, ...)
 				xpd = TRUE);
 		box();
 	}
-	if(class(x[[1]]) == "interval"){
+	if(inherits(x[[1]], "interval")){
 		numRanges = length(x);
 		intervals = unlist(sapply(x, "[", "Conf_Int"));
 		labels = unlist(sapply(x, "[", "dname"));

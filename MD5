@@ -1,10 +1,10 @@
-c56e615b93809fb21fe53cd0be95d0bf *DESCRIPTION
-9096bea3205839c0431cb2ada3c1957f *NAMESPACE
-6c406497cab516b3e9861afedc818663 *R/referenceIntervals.R
+fa253b064eb7db3259677da47cb094d6 *DESCRIPTION
+6226215f7e2a0f944ed2814340d33386 *NAMESPACE
+ffdc662f07a4f8248269437cb23a58a4 *R/referenceIntervals.R
 52b698afca21aea32f999fd731c5b024 *data/sysdata.rda
 bbef92db9619ad1a7f0f46508c7c7dbf *man/cook.outliers.Rd
 1a83bb892212f327ce5613dd56ef0730 *man/dixon.outliers.Rd
-3cbedd3e31d8d47e578840e4753ce562 *man/horn.outliers.Rd
+7b873ececff9ca98cae4c619a155e74c *man/horn.outliers.Rd
 81c161e0c1b49c83dbfe7f0feef699b1 *man/nonparRI.Rd
 763be5d36d0cc592693dc3add602003b *man/nonparRanks.Rd
 2a04a6846db35105993ac11e94dec96b *man/plot.interval.Rd
