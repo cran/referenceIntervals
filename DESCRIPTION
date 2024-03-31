@@ -1,8 +1,8 @@
 Package: referenceIntervals
 Type: Package
 Title: Reference Intervals
-Version: 1.3.0
-Date: 2022-04-27
+Version: 1.3.1
+Date: 2024-03-30
 Author: Daniel Finnegan
 Maintainer: Daniel Finnegan <dan.finnegan@gmail.com>
 Imports: boot, extremevalues, MASS, outliers
@@ -12,6 +12,6 @@ Description: This is a collection of tools to allow the medical professional to
  the limits for diagnostic purposes.
 License: GPL-3
 NeedsCompilation: no
-Packaged: 2022-04-28 21:42:47 UTC; finny
+Packaged: 2024-03-30 13:52:19 UTC; finny
 Repository: CRAN
-Date/Publication: 2022-04-28 22:00:02 UTC
+Date/Publication: 2024-03-31 01:30:02 UTC

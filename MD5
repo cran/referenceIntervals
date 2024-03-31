@@ -1,4 +1,4 @@
-fa253b064eb7db3259677da47cb094d6 *DESCRIPTION
+386d3aa7730004d3116fe75f872636fa *DESCRIPTION
 6226215f7e2a0f944ed2814340d33386 *NAMESPACE
 ffdc662f07a4f8248269437cb23a58a4 *R/referenceIntervals.R
 52b698afca21aea32f999fd731c5b024 *data/sysdata.rda
@@ -11,7 +11,7 @@ bbef92db9619ad1a7f0f46508c7c7dbf *man/cook.outliers.Rd
 1b345ef30f03222b3e3239afbda47e6a *man/print.interval.Rd
 d311ca9f4d9b1a5b3d9d58c3529ae0cd *man/print.interval.sub.Rd
 1ca10d611189b58733cb7d22d813c00f *man/refLimit.Rd
-8784c112a7ecd2534cf3e212730144a1 *man/referenceIntervals-package.Rd
+4a3b989727063ec61bf31e410e8a74e0 *man/referenceIntervals-package.Rd
 7195ece2f133d930189cbc179def8ff0 *man/robust.Rd
 7768132e67e8121af06e3cf95aadc273 *man/set120.Rd
 790a198a9db3e3e33a10e66806f0dde8 *man/set20.Rd
